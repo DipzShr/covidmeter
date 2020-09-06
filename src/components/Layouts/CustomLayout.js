@@ -78,7 +78,9 @@ const CustomLayout = (props) => {
       </div>
       <div className={`content ${sidebarOpenStateClass()}`}>
         <div className="header">
-          { Object.keys(props.totalData).map(key => renderTotalData(key)) }
+          <div className="header-data-container">
+            { Object.keys(props.totalData).map(key => renderTotalData(key)) }
+          </div>
         </div>
         { props.children }
       </div>

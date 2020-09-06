@@ -39,10 +39,15 @@
     .header {
       padding: 15px 30px;
       border-bottom: 1px solid black;
-      .header-data {
+      .header-data-container {
+        width: fit-content;
         padding: 5px;
-        .data-title {
-          font-weight: bold;
+        border: 1px solid;
+        .header-data {
+          padding: 5px;
+          .data-title {
+            font-weight: bold;
+          }
         }
       }
     }
