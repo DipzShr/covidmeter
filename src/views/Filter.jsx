@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
+import { connect } from 'react-redux';
 import covidService from '../services/covid';
 import DataTable from '../components/DataTable';
+import dateDataActions from '../store/actions/dateData';
 
 const tableHeaders = [
   {
@@ -25,34 +27,37 @@ const tableHeaders = [
   }
 ]
 
-const Filter = () => {
-  const [data, setData] = useState([]);
-  const [date, setDate] = useState('');
+const Filter = (props) => {
 
   const handleDateChange = (event) => {
     const date = event.target.value
-    setDate(date)
+    props.dispatch(dateDataActions.changeDate(date))
     if (date) {
       covidService.fetchDateFilteredData(date)
         .then(response => {
-          setData(response)
+          props.dispatch(dateDataActions.store(response))
         })
     }
   }
 
   const renderDataTable = () => {
-    if (date) {
-      return (<DataTable headers={tableHeaders} data={data} sortDefault='country'/>)
+    if (props.date) {
+      return (<DataTable headers={tableHeaders} data={props.data} sortDefault='country'/>)
     }
   }
 
   return (
     <div>
       <div style={{display: 'flex', justifyContent: 'center', padding: '10px'}}>
-        <input type='date' onChange={handleDateChange}/>
+        <input type='date' onChange={handleDateChange} value={props.date}/>
       </div>
       { renderDataTable() }
     </div>)
 }
 
-export default Filter
+const mapStateToProps = (state) => ({
+  date: state.dateData.date,
+  data: state.dateData.data,
+})
+
+export default connect(mapStateToProps)(Filter)

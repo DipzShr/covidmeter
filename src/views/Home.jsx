@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react';
+import { connect } from 'react-redux';
 import covidService from '../services/covid';
+import countryDataActions from '../store/actions/countryData';
 import DataTable from '../components/DataTable';
 
 const tableHeaders = [
@@ -25,16 +27,22 @@ const tableHeaders = [
   }
 ]
 
-const Home = () => {
-  const [fetchingData, setFetchingData] = useState(true);
-  const [data, setData] = useState([]);
+const Home = (props) => {
+  const [fetchingData, setFetchingData] = useState(false);
 
-  useEffect(() => {
+  const fetchCountryData = () => {
+    setFetchingData(true)
     covidService.fetchCountryData()
       .then(response => {
-        setData(response)
         setFetchingData(false)
+        props.dispatch(countryDataActions.store(response))
       })
+  }
+
+  useEffect(() => {
+    if (props.data.length === 0) {
+      fetchCountryData()
+    }
   }, [])
 
   if (fetchingData) {
@@ -42,7 +50,32 @@ const Home = () => {
       <div>Loading...</div>)
   }
 
-  return (<DataTable headers={tableHeaders} data={data} sortDefault='country'/>)
+  return (
+    <div>
+      <div style={styles.refreshButtonContainer}>
+        <span style={styles.refreshButton} onClick={fetchCountryData}>
+          Refresh Data
+        </span>
+      </div>
+      <DataTable headers={tableHeaders} data={props.data} sortDefault='country'/>
+    </div>)
 }
 
-export default Home
+const styles = {
+  refreshButtonContainer: {
+    textDecoration: 'underline',
+    padding: "10px",
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  refreshButton: {
+    cursor: 'pointer',
+  }
+}
+
+const mapStateToProps = (state) => ({
+  data: state.countryData,
+})
+
+export default connect(mapStateToProps)(Home)
